@@ -1,0 +1,6 @@
+
+Открыть GitHub Desktop
+Нажать Current Repository → Add → Create New Repository
+Выбрать папку проекта, заполнить название и описание, выбрать лицензию и ReadMe, нажмть Add Repository
+Теперь GitHub следит за изменениями проекта
+Нажать Publish, ввести коммит, нажать commit to main

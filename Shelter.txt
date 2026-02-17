@@ -1,0 +1,5 @@
+Проект
+Shelter: Soften the Impact
+Страждущим от шумных соседей посвящается
+Пакет
+com.sdvizkov.shelter

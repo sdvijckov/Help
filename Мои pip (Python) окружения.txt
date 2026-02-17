@@ -1,0 +1,47 @@
+# Создание окружений
+python -m venv имя_прокта_env
+# Перейти в папку проекта перед созданием окружения
+
+# Активация окружений
+
+# Для проекта AI-dream-assistents
+D:
+cd Projects python/AI-dream-assistents
+.\AI-dream-assistents_env\Scripts\activate
+
+
+# Для проекта dream_team
+D:
+cd Projects python\Dream_team
+.\dream_team_env\Scripts\activate
+
+# Для проекта my_puppy
+D:
+cd Projects python\My_puppy
+.\my_puppy_env\Scripts\activate
+
+# Для проекта Universal_parser
+D:
+cd Projects python\Universal_parser
+.\Universal_parser_env\Scripts\activate
+
+# Для проекта XY_shot
+D:
+cd Projects python\XY_shot
+.\XY_shot_env\Scripts\activate
+
+# Для проекта Simply_browser
+D:
+cd Projects python\Simply_browser
+.\Simply_browser_env\Scripts\activate
+
+# --- Общие команды ---
+
+#апустить главный скрипт приложения
+python имя_файла.py
+
+Создать пустой файл
+type nul > имя_файла.py
+
+Открыть файл в Notepad++
+start notepad++.exe имя_файла.py
