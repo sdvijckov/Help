@@ -29,22 +29,6 @@ class WindowsBackend(BaseBackend):
     WM_VSCROLL = win32con.WM_VSCROLL
     WM_HSCROLL = win32con.WM_HSCROLL
     
-    # Команды вертикальной прокрутки
-    SCROLL_COMMANDS = {
-        'up': win32con.SB_PAGEUP,
-        'down': win32con.SB_PAGEDOWN,
-        'line_up': win32con.SB_LINEUP,
-        'line_down': win32con.SB_LINEDOWN,
-    }
-    
-    # Команды горизонтальной прокрутки
-    HSCROLL_COMMANDS = {
-        'left': win32con.SB_LINELEFT,
-        'right': win32con.SB_LINERIGHT,
-        'page_left': win32con.SB_PAGELEFT,
-        'page_right': win32con.SB_PAGERIGHT,
-    }
-    
     def __init__(self):
         """Инициализация Windows-бэкенда."""
         super().__init__()
@@ -111,7 +95,7 @@ class WindowsBackend(BaseBackend):
         Args:
             hwnd (int): Handle окна.
             direction (str): Направление прокрутки ('up' или 'down').
-            amount (int): Количество строк (игнорируется для постраничной прокрутки).
+            amount (int): Количество строк (для построчной прокрутки).
         
         Returns:
             bool: True, если прокрутка успешна.
@@ -119,24 +103,43 @@ class WindowsBackend(BaseBackend):
         if not hwnd:
             return False
         
-        command = self.SCROLL_COMMANDS.get(direction)
-        if not command:
-            logger.warning(f"Неизвестное направление прокрутки: {direction}")
-            return False
-        
+        # Импортируем настройки
         try:
-            # Проверяем, существует ли окно
-            if not win32gui.IsWindow(hwnd):
-                logger.debug(f"Окно {hwnd} не существует")
+            from ..config import SCROLL_TYPE, SCROLL_LINES
+        except ImportError:
+            from config import SCROLL_TYPE, SCROLL_LINES
+        
+        # Выбираем команду в зависимости от типа прокрутки
+        if SCROLL_TYPE == 'line':
+            command = win32con.SB_LINEUP if direction == 'up' else win32con.SB_LINEDOWN
+            # Для построчной прокрутки отправляем сообщение несколько раз
+            lines_to_scroll = amount if amount > 0 else SCROLL_LINES
+            try:
+                if not win32gui.IsWindow(hwnd):
+                    logger.debug(f"Окно {hwnd} не существует")
+                    return False
+                
+                for _ in range(lines_to_scroll):
+                    win32api.PostMessage(hwnd, self.WM_VSCROLL, command, 0)
+                logger.debug(f"Вертикальная прокрутка (lines): {direction} x{lines_to_scroll} для окна {hwnd}")
+                return True
+            except Exception as e:
+                logger.error(f"Ошибка при вертикальной прокрутке (lines): {e}")
                 return False
-            
-            win32api.PostMessage(hwnd, self.WM_VSCROLL, command, 0)
-            logger.debug(f"Вертикальная прокрутка: {direction} для окна {hwnd}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Ошибка при вертикальной прокрутке: {e}")
-            return False
+        else:
+            # Постраничная прокрутка
+            command = win32con.SB_PAGEUP if direction == 'up' else win32con.SB_PAGEDOWN
+            try:
+                if not win32gui.IsWindow(hwnd):
+                    logger.debug(f"Окно {hwnd} не существует")
+                    return False
+                
+                win32api.PostMessage(hwnd, self.WM_VSCROLL, command, 0)
+                logger.debug(f"Вертикальная прокрутка (page): {direction} для окна {hwnd}")
+                return True
+            except Exception as e:
+                logger.error(f"Ошибка при вертикальной прокрутке (page): {e}")
+                return False
     
     def scroll_horizontal(self, hwnd: int, direction: str, amount: int = 0) -> bool:
         """
@@ -153,18 +156,24 @@ class WindowsBackend(BaseBackend):
         if not hwnd:
             return False
         
-        command = self.HSCROLL_COMMANDS.get(direction)
-        if not command:
-            logger.warning(f"Неизвестное направление горизонтальной прокрутки: {direction}")
-            return False
+        # Импортируем настройки
+        try:
+            from ..config import SCROLL_COLUMNS
+        except ImportError:
+            from config import SCROLL_COLUMNS
+        
+        command = win32con.SB_LINELEFT if direction == 'left' else win32con.SB_LINERIGHT
+        cols_to_scroll = amount if amount > 0 else SCROLL_COLUMNS
         
         try:
             if not win32gui.IsWindow(hwnd):
                 logger.debug(f"Окно {hwnd} не существует")
                 return False
             
-            win32api.PostMessage(hwnd, self.WM_HSCROLL, command, 0)
-            logger.debug(f"Горизонтальная прокрутка: {direction} для окна {hwnd}")
+            for _ in range(cols_to_scroll):
+                win32api.PostMessage(hwnd, self.WM_HSCROLL, command, 0)
+            
+            logger.debug(f"Горизонтальная прокрутка: {direction} x{cols_to_scroll} для окна {hwnd}")
             return True
             
         except Exception as e:

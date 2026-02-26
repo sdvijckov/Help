@@ -15,14 +15,14 @@ try:
     from .config import (
         LOG_LEVEL,
         LOG_FILE,
-        LOG_MAX_BYTES,
-        LOG_BACKUP_COUNT,
         PAUSE_KEY,
         SCROLL_UP_KEY,
         SCROLL_DOWN_KEY,
         HORIZONTAL_SCROLL_ENABLED,
         SHOW_PAUSE_NOTIFICATION,
-        SCROLL_REPEAT_DELAY,
+        SCROLL_TYPE,
+        SCROLL_LINES,
+        SCROLL_COLUMNS,
     )
     from .backends import get_backend
     from .backends.base import BaseBackend
@@ -30,14 +30,14 @@ except ImportError:
     from config import (
         LOG_LEVEL,
         LOG_FILE,
-        LOG_MAX_BYTES,
-        LOG_BACKUP_COUNT,
         PAUSE_KEY,
         SCROLL_UP_KEY,
         SCROLL_DOWN_KEY,
         HORIZONTAL_SCROLL_ENABLED,
         SHOW_PAUSE_NOTIFICATION,
-        SCROLL_REPEAT_DELAY,
+        SCROLL_TYPE,
+        SCROLL_LINES,
+        SCROLL_COLUMNS,
     )
     from backends import get_backend
     from backends.base import BaseBackend
@@ -177,12 +177,6 @@ class ScrollController:
                 logger.info(f"Пауза: {'ВКЛ' if new_state else 'ВЫКЛ'}")
                 return
             
-            # Выход
-            if key == keyboard.Key.esc:
-                logger.info("Нажата ESC. Остановка контроллера.")
-                self.stop()
-                return
-            
             # Прокрутка
             if self._is_scroll_key(key):
                 if key == self._scroll_up_key:
@@ -220,6 +214,10 @@ class ScrollController:
         logger.info(f"Клавиша паузы: {PAUSE_KEY}")
         logger.info(f"Прокрутка вверх: {SCROLL_UP_KEY}")
         logger.info(f"Прокрутка вниз: {SCROLL_DOWN_KEY}")
+        logger.info(f"Тип прокрутки: {SCROLL_TYPE}")
+        if SCROLL_TYPE == 'line':
+            logger.info(f"Строк за нажатие: {SCROLL_LINES}")
+            logger.info(f"Колонок за нажатие: {SCROLL_COLUMNS}")
         logger.info(f"Горизонтальная прокрутка: {'ВКЛ' if HORIZONTAL_SCROLL_ENABLED else 'ВЫКЛ'} (Shift + клавиша)")
         logger.info("=" * 50)
         
